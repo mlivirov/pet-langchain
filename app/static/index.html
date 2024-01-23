@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>OpenAI Demo</title>
+    <link rel="stylesheet" href="https://unpkg.com/primeflex@latest/primeflex.css">
+    <link rel="stylesheet" href="https://unpkg.com/primeflex@latest/themes/primeone-light.css">
+</head>
+<body>
+    <div id="app" class="mt-4">
+        <form @submit.stop.prevent="submitPrompt">
+            <div class="flex align-items-center justify-content-center">
+                <img height="128" src="chatgpt.png" alt="chatgpt logo">
+                <img height="64" src="heart.png" alt="love logo" class="mr-6">
+                <img height="128" src="database.png" alt="database logo">
+            </div>
+            <p class="text-5xl text-center" id="label">Enter prompt</p>
+            <div class="flex flex-column align-items-center">
+                <input v-model="prompt"
+                       :disabled="isLoading"
+                       type="text"
+                       placeholder="enter your prompt here"
+                       class="w-9 h-4rem text-2xl border-round-3xl border-gray-500 text-center"
+                       aria-labelledby="label"
+                       >
+
+                <div v-if="!prompt">
+                    <h5 class="text-center">Examples:</h5>
+                    <ul class="list-none">
+                        <li>example 1: show me the most popular vehicle make in state of Oregon</li>
+                        <li>example 2: what is the oldest car in the country</li>
+                        <li>example 3: what are the 5 most popular carmakers</li>
+                    </ul>
+                    <p class="text-gray-800 mt-2 text-center">(hint: press enter to submit)</p>
+                </div>
+
+                <p v-if="isLoading" class="text-center" id="loading-indicator">Loading...</p>
+            </div>
+
+            <div class="flex justify-content-center">
+                <div v-if="!isLoading" id="output" class="text-left text-lg mt-6" v-html="output"></div>
+            </div>
+        </form>
+    </div>
+
+    <script type="module">
+          import { createApp } from 'https://unpkg.com/petite-vue?module'
+          createApp({
+            prompt: '',
+            output: '',
+            isLoading: false,
+            submitPrompt() {
+                this.isLoading = true;
+                fetch(`/api/prompt?text=${this.prompt}`)
+                    .then(res => {
+                        if (!res.ok) {
+                            throw res;
+                        }
+
+                        return res.text();
+                    })
+                    .then(text => {
+                        this.output = text;
+                    })
+                    .catch(err => {
+                        this.output = `An error occurred. Please try to rephrase your prompt or try again later.`;
+                    }).finally(() => {
+                        this.isLoading = false;
+                    });
+            }
+          }).mount()
+    </script>
+</body>
+</html>

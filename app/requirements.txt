@@ -1,0 +1,6 @@
+langchain
+langchain-experimental
+openai
+fastapi
+uvicorn
+clickhouse-sqlalchemy
